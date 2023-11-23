@@ -1,0 +1,28 @@
+doctype html 
+html 
+  block head 
+    head
+    //- 插值语法 #{}
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title Natours | #{title}
+    //- 这里会自动访问public下的文件，所以你不需要写public/css...
+    link(rel="stylesheet", href="/css/style.css")
+    link(rel="shortcut icon", href="img/favicon.png" type='/image/png')
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
+
+  body 
+    //- Header
+    include _header
+
+    //- Content
+    block content
+      h1 This is a placeholder heading
+
+    //- footer
+    include _footer
+
+    //- script(src='https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js')
+    //- script(src='/js/login.js')
+    script(src='/js/bundle.js')
+    

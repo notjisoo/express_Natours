@@ -1,0 +1,93 @@
+extends base
+
+include _reviewCard
+//- 抽离出来形成一个组件，又可以传值 - QUICK FACTS
+mixin overviewBox(label, text, icon)
+  .overview-box__detail
+    svg.overview-box__icon
+      use(xlink:href=`/img/icons.svg#icon-${icon}`)
+    span.overview-box__label= label
+    pan.overview-box__text= text
+
+//- 继承并且追加一个script标签
+block append head 
+  //- defer布尔值，只有当你设置为true的时候，它会等你页面全部加载完毕再执行
+  script(src='/js/mapbox.js' defer='true')
+
+block content 
+  section.section-header
+    .header__hero
+      .header__hero-overlay &nbsp;
+      img.header__hero-img(src=`/img/tours/${tour.imageCover}`, alt=`${tour.name}`)
+
+    .heading-box
+      h1.heading-primary
+        span=tour.name
+      .heading-box__group
+        .heading-box__detail
+          svg.heading-box__icon
+            use(xlink:href='/img/icons.svg#icon-clock')
+          span.heading-box__text=`Duration ${tour.duration} day`
+        .heading-box__detail
+          svg.heading-box__icon
+            use(xlink:href='/img/icons.svg#icon-map-pin')
+          span.heading-box__text= tour.startLocation.description
+
+  section.section-description
+    .overview-box
+      div
+        .overview-box__group
+          h2.heading-secondary.ma-bt-lg Quick facts
+
+          - const date = tour.startDates[1].toLocaleString('en-us', {month: 'long', year:'numeric'});
+          +overviewBox('Next Date', date, 'calendar')
+
+          +overviewBox('Difficulty', tour.difficulty, 'trending-up')
+
+          +overviewBox('Participants', `${tour.maxGroupSize} people`, 'user')
+
+          +overviewBox('Rating', `${tour.ratingsAverage} / ${tour.ratingsQuantity}`, 'star')
+
+
+        .overview-box__group
+          h2.heading-secondary.ma-bt-lg Your tour guides
+          each Guideitem in tour.guides
+            .overview-box__detail
+              img.overview-box__img(src=`/img/users/${Guideitem.photo}`, alt=`${Guideitem.name}`)
+              - if (Guideitem.role === 'lead-guide')
+                span.overview-box__label Lead guide 
+              - if (Guideitem.role === 'guide')
+                span.overview-box__label Tour guide
+              span.overview-box__text= Guideitem.name
+
+
+    .description-box
+      h2.heading-secondary.ma-bt-lg=` About ${tour.name} tour`
+      - const parapraphs = tour.description.split('\n');
+      for p in parapraphs
+        p.description__text= p 
+
+
+  section.section-pictures
+    each Imgitem, i in tour.images 
+      .picture-box
+        img.picture-box__img(src=`/img/tours/${Imgitem}`, alt= `The Park Camper Tour${i + 1}`, class=`.picture-box__img--${i + 1}`)
+
+  section.section-map
+    #map(data-locations=`${JSON.stringify(tour.locations)}`)
+
+  section.section-reviews
+    .reviews
+      each Reviewsitem in tour.reviews  
+        +reviewCard(Reviewsitem)
+         
+  section.section-cta
+    .cta
+      .cta__img.cta__img--logo
+        img(src='/img/logo-white.png', alt='Natours logo')
+      img.cta__img.cta__img--1(src=`/img/tours/${tour.images[0]}`, alt='')
+      img.cta__img.cta__img--2(src=`/img/tours/${tour.images[1]}`, alt='')
+      .cta__content
+        h2.heading-secondary What are you waiting for?
+        p.cta__text=` ${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!`
+        button.btn.btn--green.span-all-rows Book tour now!
