@@ -1,20 +1,16 @@
+/*eslint-disable*/
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const rateLimit = require('express-rate-limit');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const helmet = require('helmet');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const mongoSanitize = require('express-mongo-sanitize');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const xss = require('xss-clean');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const hpp = require('hpp');
-// eslint-disable-next-line import/no-extraneous-dependencies
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+
 // 设置pug为模版引擎
 app.set('view engine', 'pug');
 
@@ -27,13 +23,33 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
 // 1) MIDDLEWARES 使用中间件
 // 访问根目录127.0.0.1相当于访问public, Servings static files
 app.use(express.static(path.join(__dirname, 'public')));
+
 // Set security HTTP headers
-app.use(helmet());
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'", 'https:', 'http:', 'data:', 'ws:'],
+//         baseUri: ["'self'"],
+//         fontSrc: ["'self'", 'https:', 'http:', 'data:'],
+//         scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+//         styleSrc: ["'self'", 'https:', 'http:', 'unsafe-inline'],
+//       },
+//     },
+//   }),
+// );
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
+
 if (process.env.NODE_ENV === 'development') {
   // 显示日志
   app.use(morgan('dev'));
@@ -101,6 +117,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // 后置 注意这里的app.all是不可以再普通路由上面的，这算是一个兜底，如果放在最上面那么不管你的什么请求都会是这个一个，因为有 *
 app.all('*', (req, res, next) => {

@@ -3,17 +3,13 @@ import '@babel/polyfill';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
 import { isLoading } from './alerts';
+import { bookTour } from './stripe';
+// DOM Elements
 const loginForm = document.querySelector('.form--login');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userUpdatePasswordForm = document.querySelector('.form-user-password');
-
-// test dialog
-const test = document.querySelector('.test');
-
-test.addEventListener('click', (e) => {
-  e.preventDefault();
-});
+const bookBtn = document.getElementById('book-tour');
 
 if (loginForm) {
   loginForm.addEventListener('submit', (e) => {
@@ -62,5 +58,14 @@ if (userUpdatePasswordForm) {
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
     document.getElementById('password-confirm').value = '';
+  });
+}
+
+// 订单
+if (bookBtn) {
+  bookBtn.addEventListener('click', (e) => {
+    e.target.textContent = 'Processing...';
+    const { tourId } = e.target.dataset;
+    bookTour(tourId);
   });
 }

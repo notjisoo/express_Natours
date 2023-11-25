@@ -24,3 +24,5 @@ export const updateSettings = async (data, type) => {
     return -1;
   }
 };
+
+//volumes/install macOS catalina 15.7.0.2
