@@ -1,5 +1,6 @@
 const express = require('express');
 const { isLoggedIn, protect } = require('../controllers/authController');
+const { createBookingCheckout } = require('../controllers/bookingController');
 
 const router = express.Router();
 const {
@@ -8,14 +9,18 @@ const {
   getLoginForm,
   getAccount,
   updateUserData,
+  getMyTours,
 } = require('../controllers/viewController');
 
-router.get('/', isLoggedIn, getOverview);
+router.get('/', createBookingCheckout, isLoggedIn, getOverview);
 router.get('/tour/:slug', isLoggedIn, getTour);
 // /login
 router.get('/login', isLoggedIn, getLoginForm);
 // /me
 router.get('/me', protect, getAccount);
+
+// /me-tours
+router.get('/my-tours', protect, getMyTours);
 
 router.get('/submit-user-data', protect, updateUserData);
 

@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const app = express();
 
@@ -90,6 +91,8 @@ app.use(
   }),
 );
 
+app.use(compression());
+
 // 前置 ，在请求添加字段, Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -112,7 +115,6 @@ app.use((req, res, next) => {
 // });
 
 // 3) ROUTES
-
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

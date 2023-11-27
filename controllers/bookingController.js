@@ -1,9 +1,10 @@
 /*eslint-disable*/
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Tour = require('./../models/tourModel');
+const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+const Booking = require('../models/bookingModel');
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1.Get the currently booked tour
@@ -11,7 +12,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 2.Create checkout session
   // 定义一个产品
   const product = await stripe.products.create({
-    name: 'T-shirt',
+    name: tour.name,
     description: tour.summary,
     images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
   });
@@ -34,7 +35,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         quantity: 1,
       },
     ],
-    success_url: `${req.protocol}://${req.get('host')}/`,
+    // 成功返回的路径
+    success_url: `${req.protocol}://${req.get('host')}/?tour=${
+      req.params.tourId
+    }&user=${req.user.id}&price=${tour.price}`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
   });
 
@@ -44,3 +48,22 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     session,
   });
 });
+
+exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+  // This is only TEMPORARY, because it's unsecure: everyone can make bookings without paying
+
+  const { tour, user, price } = req.query;
+
+  if (!tour && !user && !price) return next();
+
+  await Booking.create({ tour, user, price });
+
+  // 重定向首页，相当于刷新
+  res.redirect(req.originalUrl.split('?')[0]);
+});
+
+exports.createBooking = factory.createOne(Booking);
+exports.getBooking = factory.getOne(Booking);
+exports.getAllBookings = factory.getAll(Booking);
+exports.updateBooking = factory.updateOne(Booking);
+exports.deleteBooking = factory.deleteOne(Booking);
