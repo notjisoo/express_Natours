@@ -48,6 +48,8 @@ exports.createOne = (Model) =>
     });
   });
 
+// ef596637-4dbf-04f1-fc80-53b8e370fd77
+
 exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     // 正常访问，如果有传递popOptions那么久给他添加填充函数populate即可
